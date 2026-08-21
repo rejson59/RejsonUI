@@ -1,0 +1,275 @@
+:root {
+    --purple-glow: #a855f7;
+    --purple-dark: #3b0764;
+    --purple-neon: #d8b4fe;
+    --bg-black: #05020a;
+    --glass-bg: rgba(20, 10, 35, 0.65);
+    --glass-border: rgba(168, 85, 247, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, monospace, sans-serif;
+    user-select: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-black);
+    color: #fff;
+}
+
+/* PRELOADER */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-black);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.glow-text {
+    font-size: 3rem;
+    letter-spacing: 8px;
+    color: var(--purple-neon);
+    text-shadow: 0 0 20px var(--purple-glow), 0 0 40px var(--purple-glow);
+    margin-bottom: 10px;
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: #a3a3a3;
+    letter-spacing: 2px;
+}
+
+.futuristic-btn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: transparent;
+    border: 2px solid var(--purple-glow);
+    color: var(--purple-neon);
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--purple-glow);
+    transition: all 0.3s ease;
+}
+
+.futuristic-btn:hover {
+    background: var(--purple-glow);
+    color: #000;
+    box-shadow: 0 0 30px var(--purple-glow);
+}
+
+.hidden { display: none !important; }
+
+/* CANVAS 3D */
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* HUD HEADER */
+.hud-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    background: linear-gradient(180deg, rgba(5,2,10,0.8) 0%, transparent 100%);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #fff;
+}
+.logo span { color: var(--purple-glow); }
+
+.hud-nav {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-btn {
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid var(--glass-border);
+    color: #ccc;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.nav-btn.active, .nav-btn:hover {
+    background: var(--purple-glow);
+    color: #000;
+    box-shadow: 0 0 15px var(--purple-glow);
+}
+
+.hud-icon-btn {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--purple-neon);
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* SPATIAL UI PANELS */
+#app-ui {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.hud-section, .hologram-card {
+    pointer-events: auto;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(15px);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+    max-width: 600px;
+    margin: 120px auto 0 auto;
+}
+
+.glass-panel h2 {
+    color: var(--purple-neon);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+/* HOLOGRAM MODAL DLA PROJEKTU */
+.hologram-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: rgba(25, 10, 40, 0.9);
+    border: 2px solid var(--purple-glow);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 0 40px var(--purple-glow);
+    backdrop-filter: blur(20px);
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: var(--purple-neon);
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.tag { font-size: 0.7rem; color: var(--purple-glow); letter-spacing: 2px; }
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #222;
+    border-radius: 4px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+.progress-bar .fill {
+    height: 100%;
+    background: var(--purple-glow);
+    width: 0%;
+    box-shadow: 0 0 10px var(--purple-glow);
+    transition: width 1s ease;
+}
+
+/* TREE STRUCTURE */
+.tree-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.tree-branches {
+    display: flex;
+    gap: 15px;
+}
+
+.tree-node {
+    padding: 10px 15px;
+    border: 1px solid var(--purple-glow);
+    background: rgba(168, 85, 247, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.tree-node:hover {
+    background: var(--purple-glow);
+    color: #000;
+}
+
+.info-box {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.4);
+    border-left: 3px solid var(--purple-glow);
+    font-size: 0.85rem;
+}
+
+/* SOCIAL GRID */
+.social-links-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.social-btn {
+    padding: 12px;
+    border: 1px solid var(--purple-glow);
+    color: var(--purple-neon);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+    background: var(--purple-glow);
+    color: #000;
+    box-shadow: 0 0 20px var(--purple-glow);
+}
