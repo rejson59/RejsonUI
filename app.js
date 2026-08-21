@@ -4,7 +4,7 @@ const soundSFX = new Howl({
     volume: 0.2
 });
 
-// SCENA THREE.JS Z MGŁĄ DLA GŁĘBI
+// SCENA THREE.JS
 const canvas = document.getElementById('webgl-canvas');
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x030008, 0.025);
@@ -15,11 +15,10 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alph
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// EFEKT GLOW DLA CZĄSTECZEK (TEKSTURA SFERY)
+// TEKSTURA CZĄSTECZEK
 function createParticleTexture() {
     const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
+    canvas.width = 64; canvas.height = 64;
     const ctx = canvas.getContext('2d');
     const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
     gradient.addColorStop(0, 'rgba(216, 180, 254, 1)');
@@ -30,7 +29,38 @@ function createParticleTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
-// 1. GŁÓWNA KULA CZĄSTECZEK 3D
+// GENERATOR TEKSTURY HOLOGRAMU Z TEKSTEM
+function createHologramTexture(title, tag) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 340;
+    const ctx = canvas.getContext('2d');
+
+    // Tło szkła
+    ctx.fillStyle = 'rgba(20, 8, 38, 0.85)';
+    ctx.fillRect(0, 0, 512, 340);
+
+    // Obramowanie
+    ctx.strokeStyle = '#a855f7';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(10, 10, 492, 320);
+
+    // Teksty
+    ctx.fillStyle = '#a855f7';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillText(`// ${tag}`, 30, 60);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 42px sans-serif';
+    ctx.fillText(title, 30, 140);
+
+    ctx.fillStyle = '#d8b4fe';
+    ctx.font = '22px sans-serif';
+    ctx.fillText('KLIKNIJ / DOTKNIJ Szczegóły', 30, 260);
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+// 1. SFERA CZĄSTECZEK
 const sphereGroup = new THREE.Group();
 scene.add(sphereGroup);
 
@@ -50,7 +80,6 @@ for(let i = 0; i < count * 3; i += 3) {
 
 const particlesGeo = new THREE.BufferGeometry();
 particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
 const particlesMat = new THREE.PointsMaterial({
     size: 0.8,
     map: createParticleTexture(),
@@ -59,20 +88,21 @@ const particlesMat = new THREE.PointsMaterial({
     depthWrite: false
 });
 
-const particleSphere = new THREE.Points(particlesGeo, particlesMat);
-sphereGroup.add(particleSphere);
+sphereGroup.add(new THREE.Points(particlesGeo, particlesMat));
 
-// KARTY PROJEKTÓW
+// PROJEKTY
 const projectsData = [
     {
         title: "HandTrack OS",
+        tag: "COMPUTER VISION",
         desc: "Bezdotykowe sterowanie komputerem za pomocą gestów dłoni i kamerki.",
         progress: "80%",
         tech: ["Python", "MediaPipe", "OpenCV"],
         pos: new THREE.Vector3(0, 0, -12)
     },
     {
-        title: "Nixi AI Assistant",
+        title: "Nixi AI",
+        tag: "AUTONOMOUS AGENT",
         desc: "Autonomiczna asystentka głosowa z zespołem lokalnych agentów AI.",
         progress: "50%",
         tech: ["Ollama", "Local LLMs", "Python"],
@@ -82,13 +112,13 @@ const projectsData = [
 
 const projectMeshes = [];
 projectsData.forEach((proj) => {
-    const geo = new THREE.PlaneGeometry(6, 4);
+    const geo = new THREE.PlaneGeometry(7, 4.5);
+    const texture = createHologramTexture(proj.title, proj.tag);
     const mat = new THREE.MeshBasicMaterial({
-        color: 0xa855f7,
+        map: texture,
         side: THREE.DoubleSide,
-        wireframe: true,
         transparent: true,
-        opacity: 0.8
+        opacity: 0.9
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.copy(proj.pos);
@@ -98,24 +128,19 @@ projectsData.forEach((proj) => {
     projectMeshes.push(mesh);
 });
 
-// 2. TESSERACT
+// 2. TESSERACT & 3. RZEŹBIARZ
 const tesseractGroup = new THREE.Group();
-const cubeGeo = new THREE.BoxGeometry(4, 4, 4);
-const cubeMat = new THREE.MeshBasicMaterial({ color: 0xd8b4fe, wireframe: true });
-tesseractGroup.add(new THREE.Mesh(cubeGeo, cubeMat));
+tesseractGroup.add(new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshBasicMaterial({ color: 0xd8b4fe, wireframe: true })));
 tesseractGroup.position.set(0, -100, 0);
 scene.add(tesseractGroup);
 
-// 3. RZEŹBIARZ 3D
-const sculptureGeo = new THREE.IcosahedronGeometry(3, 2);
-const sculptureMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true });
-const sculptureMesh = new THREE.Mesh(sculptureGeo, sculptureMat);
+const sculptureMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(3, 2), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true }));
 sculptureMesh.position.set(0, 100, 0);
 scene.add(sculptureMesh);
 
 camera.position.z = 0.1;
 
-// OBSŁUGA DOTYKU I MYSZKI
+// STEROWANIE DOTYKIEM / MYSZKĄ
 let isDragging = false;
 let previousTouch = { x: 0, y: 0 };
 
@@ -123,10 +148,8 @@ const handleStart = (x, y) => { isDragging = true; previousTouch = { x, y }; };
 const handleEnd = () => { isDragging = false; };
 const handleMove = (x, y) => {
     if (isDragging) {
-        const deltaX = x - previousTouch.x;
-        const deltaY = y - previousTouch.y;
-        sphereGroup.rotation.y += deltaX * 0.005;
-        sphereGroup.rotation.x += deltaY * 0.005;
+        sphereGroup.rotation.y += (x - previousTouch.x) * 0.005;
+        sphereGroup.rotation.x += (y - previousTouch.y) * 0.005;
         previousTouch = { x, y };
     }
 };
@@ -139,7 +162,43 @@ window.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX, e
 window.addEventListener('touchend', handleEnd);
 window.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY));
 
-// PRELOADER
+// KLIKNIĘCIE W PROJEKT
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+function checkIntersects(x, y) {
+    mouse.x = (x / window.innerWidth) * 2 - 1;
+    mouse.y = -(y / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(projectMeshes);
+
+    if (intersects.length > 0) {
+        soundSFX.play();
+        const data = intersects[0].object.userData;
+        document.getElementById('modal-title').innerText = data.title;
+        document.getElementById('modal-description').innerText = data.desc;
+        document.getElementById('modal-progress').style.width = data.progress;
+        
+        const techBox = document.getElementById('modal-tech');
+        techBox.innerHTML = '';
+        data.tech.forEach(t => {
+            const span = document.createElement('span');
+            span.className = 'tree-node';
+            span.innerText = t;
+            techBox.appendChild(span);
+        });
+
+        document.getElementById('project-modal').classList.remove('hidden');
+    }
+}
+
+window.addEventListener('click', (e) => checkIntersects(e.clientX, e.clientY));
+
+document.getElementById('close-modal').addEventListener('click', () => {
+    document.getElementById('project-modal').classList.add('hidden');
+});
+
+// PRELOADER & NAV
 let progressVal = 0;
 const progressInterval = setInterval(() => {
     progressVal += 5;
@@ -157,7 +216,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     }});
 });
 
-// NAWIGACJA
 const navBtns = document.querySelectorAll('.nav-btn');
 const sections = document.querySelectorAll('.hud-section');
 
@@ -180,10 +238,9 @@ navBtns.forEach(btn => {
     });
 });
 
-// ANIMACJA GŁÓWNA
 function animate() {
     requestAnimationFrame(animate);
-    particleSphere.rotation.y += 0.002;
+    sphereGroup.rotation.y += 0.001;
     tesseractGroup.rotation.x += 0.01;
     tesseractGroup.rotation.y += 0.01;
     sculptureMesh.rotation.y += 0.01;
