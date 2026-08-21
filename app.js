@@ -1,33 +1,40 @@
-// --- USTAWIENIA DŹWIĘKU (HOWLER.JS) ---
+// DŹWIĘK
 const soundSFX = new Howl({
-    src: ['https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'], // Syntetyczny impuls sci-fi
-    volume: 0.3
+    src: ['https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'],
+    volume: 0.2
 });
 
-// --- THREE.JS PRZESTRZEŃ 3D ---
+// SCENA THREE.JS Z MGŁĄ DLA GŁĘBI
 const canvas = document.getElementById('webgl-canvas');
 const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x030008, 0.025);
+
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// WERSJA SYMMETRYCZNA / ŚWIATŁO
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-scene.add(ambientLight);
+// EFEKT GLOW DLA CZĄSTECZEK (TEKSTURA SFERY)
+function createParticleTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(216, 180, 254, 1)');
+    gradient.addColorStop(0.3, 'rgba(168, 85, 247, 0.6)');
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(canvas);
+}
 
-const pointLight = new THREE.PointLight(0xa855f7, 2, 50);
-pointLight.position.set(0, 0, 0);
-scene.add(pointLight);
-
-// --- 1. SFERA PROJEKTÓW 360° (PANORAMICZNA KULA) ---
+// 1. GŁÓWNA KULA CZĄSTECZEK 3D
 const sphereGroup = new THREE.Group();
 scene.add(sphereGroup);
 
-// PUNKTY CZĄSTECZEK SFERY
-const particlesGeo = new THREE.BufferGeometry();
-const count = 2000;
+const count = 1500;
 const positions = new Float32Array(count * 3);
 
 for(let i = 0; i < count * 3; i += 3) {
@@ -35,40 +42,54 @@ for(let i = 0; i < count * 3; i += 3) {
     const v = Math.random();
     const theta = u * 2.0 * Math.PI;
     const phi = Math.acos(2.0 * v - 1.0);
-    const r = 25; // Promień kuli
+    const r = 18 + (Math.random() - 0.5) * 3;
     positions[i] = r * Math.sin(phi) * Math.cos(theta);
     positions[i+1] = r * Math.sin(phi) * Math.sin(theta);
     positions[i+2] = r * Math.cos(phi);
 }
 
+const particlesGeo = new THREE.BufferGeometry();
 particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-const particlesMat = new THREE.PointsMaterial({ size: 0.15, color: 0xa855f7, transparent: true, opacity: 0.7 });
+
+const particlesMat = new THREE.PointsMaterial({
+    size: 0.8,
+    map: createParticleTexture(),
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+
 const particleSphere = new THREE.Points(particlesGeo, particlesMat);
 sphereGroup.add(particleSphere);
 
-// DANIA PROJEKTÓW NA ŚCIANACH SFERY
+// KARTY PROJEKTÓW
 const projectsData = [
     {
         title: "HandTrack OS",
-        desc: "Bezdotykowe sterowanie komputerem za pomocą gestów dłoni. Zawiera liczne tryby pracy (np. Tryb prezentacji).",
+        desc: "Bezdotykowe sterowanie komputerem za pomocą gestów dłoni i kamerki.",
         progress: "80%",
         tech: ["Python", "MediaPipe", "OpenCV"],
-        pos: new THREE.Vector3(15, 0, -15)
+        pos: new THREE.Vector3(0, 0, -12)
     },
     {
         title: "Nixi AI Assistant",
-        desc: "Zaawansowana wirtualna asystentka głosowa z architekturą agentową sterująca urządzeniami.",
+        desc: "Autonomiczna asystentka głosowa z zespołem lokalnych agentów AI.",
         progress: "50%",
-        tech: ["Ollama", "Local LLMs", "Python", "Agent Architecture"],
-        pos: new THREE.Vector3(-15, 0, -15)
+        tech: ["Ollama", "Local LLMs", "Python"],
+        pos: new THREE.Vector3(0, 0, 12)
     }
 ];
 
 const projectMeshes = [];
-
 projectsData.forEach((proj) => {
-    const geo = new THREE.BoxGeometry(4, 3, 0.2);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true });
+    const geo = new THREE.PlaneGeometry(6, 4);
+    const mat = new THREE.MeshBasicMaterial({
+        color: 0xa855f7,
+        side: THREE.DoubleSide,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.8
+    });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.copy(proj.pos);
     mesh.lookAt(0, 0, 0);
@@ -77,88 +98,51 @@ projectsData.forEach((proj) => {
     projectMeshes.push(mesh);
 });
 
-// --- 2. TESSERACT (HIPERKOSTKA DLA KONTAKTU) ---
+// 2. TESSERACT
 const tesseractGroup = new THREE.Group();
-const cubeGeo = new THREE.BoxGeometry(5, 5, 5);
+const cubeGeo = new THREE.BoxGeometry(4, 4, 4);
 const cubeMat = new THREE.MeshBasicMaterial({ color: 0xd8b4fe, wireframe: true });
-const tesseractCube = new THREE.Mesh(cubeGeo, cubeMat);
-tesseractGroup.add(tesseractCube);
-tesseractGroup.position.set(0, -100, 0); // Ukryty domyślnie
+tesseractGroup.add(new THREE.Mesh(cubeGeo, cubeMat));
+tesseractGroup.position.set(0, -100, 0);
 scene.add(tesseractGroup);
 
-// --- 3. RZEŹBIARZ 3D (LABORATORIUM) ---
-const sculptureGeo = new THREE.IcosahedronGeometry(4, 3);
-const sculptureMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, wireframe: true, roughness: 0.1 });
+// 3. RZEŹBIARZ 3D
+const sculptureGeo = new THREE.IcosahedronGeometry(3, 2);
+const sculptureMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true });
 const sculptureMesh = new THREE.Mesh(sculptureGeo, sculptureMat);
-sculptureMesh.position.set(0, 100, 0); // Ukryty domyślnie
+sculptureMesh.position.set(0, 100, 0);
 scene.add(sculptureMesh);
 
-camera.position.z = 0.1; // Kamera wewnątrz sfery
+camera.position.z = 0.1;
 
-// --- OBSŁUGA OBRACANIA KULEM 360 DEG ---
+// OBSŁUGA DOTYKU I MYSZKI
 let isDragging = false;
-let previousMousePosition = { x: 0, y: 0 };
+let previousTouch = { x: 0, y: 0 };
 
-window.addEventListener('mousedown', () => isDragging = true);
-window.addEventListener('mouseup', () => isDragging = false);
-window.addEventListener('mousemove', (e) => {
+const handleStart = (x, y) => { isDragging = true; previousTouch = { x, y }; };
+const handleEnd = () => { isDragging = false; };
+const handleMove = (x, y) => {
     if (isDragging) {
-        const deltaMove = { x: e.clientX - previousMousePosition.x, y: e.clientY - previousMousePosition.y };
-        sphereGroup.rotation.y += deltaMove.x * 0.005;
-        sphereGroup.rotation.x += deltaMove.y * 0.005;
+        const deltaX = x - previousTouch.x;
+        const deltaY = y - previousTouch.y;
+        sphereGroup.rotation.y += deltaX * 0.005;
+        sphereGroup.rotation.x += deltaY * 0.005;
+        previousTouch = { x, y };
     }
-    previousMousePosition = { x: e.clientX, y: e.clientY };
+};
 
-    // Interakcja w Rzeźbiarzu 3D
-    if (sculptureMesh.position.y === 0) {
-        sculptureMesh.rotation.x += 0.01;
-        sculptureMesh.rotation.y += 0.01;
-    }
-});
+window.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+window.addEventListener('mouseup', handleEnd);
+window.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
 
-// --- INTERAKCJA KLIKNIĘCIA W HOLOGRAM PROJEKTU ---
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+window.addEventListener('touchstart', (e) => handleStart(e.touches[0].clientX, e.touches[0].clientY));
+window.addEventListener('touchend', handleEnd);
+window.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX, e.touches[0].clientY));
 
-window.addEventListener('click', (e) => {
-    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(projectMeshes);
-
-    if (intersects.length > 0) {
-        soundSFX.play();
-        const data = intersects[0].object.userData;
-        openHologramModal(data);
-    }
-});
-
-function openHologramModal(data) {
-    document.getElementById('modal-title').innerText = data.title;
-    document.getElementById('modal-description').innerText = data.desc;
-    document.getElementById('modal-progress').style.width = data.progress;
-    
-    const techBox = document.getElementById('modal-tech');
-    techBox.innerHTML = '';
-    data.tech.forEach(t => {
-        const span = document.createElement('span');
-        span.className = 'tree-node';
-        span.innerText = t;
-        techBox.appendChild(span);
-    });
-
-    document.getElementById('project-modal').classList.remove('hidden');
-}
-
-document.getElementById('close-modal').addEventListener('click', () => {
-    document.getElementById('project-modal').classList.add('hidden');
-});
-
-// --- PRELOADER ANIMACJA ---
+// PRELOADER
 let progressVal = 0;
 const progressInterval = setInterval(() => {
-    progressVal += 2;
+    progressVal += 5;
     document.getElementById('progress').innerText = `${progressVal}%`;
     if (progressVal >= 100) {
         clearInterval(progressInterval);
@@ -168,12 +152,12 @@ const progressInterval = setInterval(() => {
 
 document.getElementById('start-btn').addEventListener('click', () => {
     soundSFX.play();
-    gsap.to('#preloader', { opacity: 0, duration: 1, onComplete: () => {
+    gsap.to('#preloader', { opacity: 0, duration: 0.8, onComplete: () => {
         document.getElementById('preloader').classList.add('hidden');
     }});
 });
 
-// --- NAWIGACJA MIĘDZY PODSTRONAMI ---
+// NAWIGACJA
 const navBtns = document.querySelectorAll('.nav-btn');
 const sections = document.querySelectorAll('.hud-section');
 
@@ -186,10 +170,9 @@ navBtns.forEach(btn => {
         const target = btn.getAttribute('data-section');
         sections.forEach(s => s.classList.add('hidden'));
 
-        // RESET POZYCJI OBIEKTÓW 3D
-        gsap.to(sphereGroup.position, { y: target === 'home' ? 0 : 500, duration: 1.5 });
-        gsap.to(tesseractGroup.position, { y: target === 'contact' ? 0 : -100, duration: 1.5 });
-        gsap.to(sculptureMesh.position, { y: target === 'lab' ? 0 : 100, duration: 1.5 });
+        gsap.to(sphereGroup.position, { y: target === 'home' ? 0 : 500, duration: 1 });
+        gsap.to(tesseractGroup.position, { y: target === 'contact' ? 0 : -100, duration: 1 });
+        gsap.to(sculptureMesh.position, { y: target === 'lab' ? 0 : 100, duration: 1 });
 
         if (target !== 'home') {
             document.getElementById(`${target}-section`).classList.remove('hidden');
@@ -197,29 +180,13 @@ navBtns.forEach(btn => {
     });
 });
 
-// DRZEWO SKILLI
-document.querySelectorAll('.tree-node').forEach(node => {
-    node.addEventListener('click', () => {
-        soundSFX.play();
-        const info = node.getAttribute('data-info');
-        if(info) document.getElementById('skill-description').innerText = info;
-    });
-});
-
-// DISCORD COPY
-document.getElementById('discord-btn').addEventListener('click', (e) => {
-    e.preventDefault();
-    soundSFX.play();
-    navigator.clipboard.writeText("Rejson#0000");
-    alert("Skopiowano Twój nick Discord do schowka!");
-});
-
-// PETLA ANIMACJI THREE.JS
+// ANIMACJA GŁÓWNA
 function animate() {
     requestAnimationFrame(animate);
-    particleSphere.rotation.y += 0.001;
+    particleSphere.rotation.y += 0.002;
     tesseractGroup.rotation.x += 0.01;
     tesseractGroup.rotation.y += 0.01;
+    sculptureMesh.rotation.y += 0.01;
     renderer.render(scene, camera);
 }
 animate();
