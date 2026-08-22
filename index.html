@@ -1,104 +1,106 @@
-<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rejson UI | Spatial Sci-Fi Experience</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Biblioteki 3D, animacji i dźwięku -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rejson UI | Vibe Coder Portfolio</title>
+    <link rel="stylesheet" href="style.css?v=2.0">
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 </head>
 <body>
 
-    <!-- PRELOADER -->
+    <!-- Preloader -->
     <div id="preloader">
         <div class="loader-content">
-            <div id="sphere-canvas-container"></div>
-            <h1 class="glow-text">Rejson UI</h1>
-            <p class="status-text">SYSTEM BOOTING... <span id="progress">0%</span></p>
-            <button id="start-btn" class="futuristic-btn hidden">INICJACJA SYSTEMU</button>
+            <div class="glitch-text" data-text="REJSON UI">REJSON UI</div>
+            <div class="status">INITIALIZING SYSTEM...</div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <button id="start-btn">BOOT SYSTEM</button>
         </div>
     </div>
 
-    <!-- PANELE NAWIGACYJNE HUD -->
-    <header class="hud-header">
-        <div class="logo">REJSON<span>.UI</span></div>
-        <nav class="hud-nav">
-            <button class="nav-btn active" data-section="home">SFERA 360</button>
-            <button class="nav-btn" data-section="about">DRZEWO AI</button>
-            <button class="nav-btn" data-section="contact">TESSERACT</button>
-            <button class="nav-btn" data-section="lab">RZEŹBIARZ 3D</button>
-        </nav>
-        <div class="audio-control">
-            <button id="audio-toggle" class="hud-icon-btn">🔊 AUDIO</button>
-        </div>
-    </header>
+    <!-- Main Canvas -->
+    <canvas id="bg-canvas"></canvas>
 
-    <!-- TRÓJWYMIAROWA PRZESTRZEŃ CANVASTWO -->
-    <canvas id="webgl-canvas"></canvas>
+    <!-- HUD / Navigation -->
+    <nav id="hud">
+        <div class="nav-item" data-target="projects">PROJECTS</div>
+        <div class="nav-item" data-target="synapse">SYNAPSE</div>
+        <div class="nav-item" data-target="tesseract">TESSERACT</div>
+        <div class="nav-item" data-target="lab">LABORATORY</div>
+    </nav>
 
-    <!-- INTERFEJS SPATIAL UI (OVERLAY) -->
-    <main id="app-ui">
+    <!-- Logo -->
+    <div id="logo">
+        <span class="logo-text">VIBE CODER</span>
+        <span class="logo-sub">AI ORCHESTRATOR</span>
+    </div>
 
-        <!-- KARTA HOLOGRAMU DLA PROJEKTU (MODAL HOLOGRAM) -->
-        <div id="project-modal" class="hologram-card hidden">
-            <button id="close-modal" class="close-btn">&times;</button>
-            <div class="hologram-header">
-                <span class="tag">HOLOGRAM // SYSTEM DATA</span>
-                <h2 id="modal-title">Nazwa Projektu</h2>
-            </div>
-            <div class="hologram-body">
-                <p id="modal-description">Opis projektu...</p>
-                <div class="progress-bar-container">
-                    <label>PROGRESS STATUS:</label>
-                    <div class="progress-bar"><div id="modal-progress" class="fill"></div></div>
+    <!-- Modals/Overlays -->
+    <div id="overlay-container">
+        <!-- Projects Modal -->
+        <div id="modal-projects" class="modal">
+            <div class="modal-content glass">
+                <button class="close-btn">&times;</button>
+                <div class="project-details">
+                    <h2 id="project-title">Project Name</h2>
+                    <div class="project-tag" id="project-tag">TAG</div>
+                    <div class="progress-container">
+                        <div class="progress-label">SYSTEM READINESS: <span id="project-progress">0%</span></div>
+                        <div class="progress-bar-bg"><div id="project-progress-fill" class="progress-bar-fill"></div></div>
+                    </div>
+                    <p id="project-desc">Description goes here.</p>
+                    <div class="tech-stack" id="project-tech"></div>
                 </div>
-                <div class="tech-stack" id="modal-tech"></div>
             </div>
         </div>
 
-        <!-- SEKCJA DRZEWKA UMIEJETNOSCI -->
-        <section id="about-section" class="hud-section hidden">
-            <div class="glass-panel">
-                <h2>TUNEL SYNAPTYCZNY // VIBE CODER SKILLS</h2>
-                <div class="tree-container">
-                    <div class="tree-node active" data-info="Główna supermoc: Prompt Engineering, Vibe Coding, Local LLM Architecture.">CORE: AI Orchestration</div>
-                    <div class="tree-branches">
-                        <div class="tree-node" data-info="MediaPipe, PyTorch, Ollama, Computer Vision systems.">Vision & AI</div>
-                        <div class="tree-node" data-info="Python, JavaScript, HTML5/CSS3, Spatial Web Interfaces.">Languages</div>
-                        <div class="tree-node" data-info="GitHub, Docker, VS Code, Custom Modified OS.">DevOps & Env</div>
+        <!-- Synapse View -->
+        <div id="view-synapse" class="full-view">
+            <div class="view-content glass">
+                <button class="close-btn">&times;</button>
+                <h2>SYNAPTIC TUNNEL</h2>
+                <div class="skill-tree">
+                    <div class="node core">CORE: AI Orchestration</div>
+                    <div class="branch">
+                        <div class="node branch-node">Vision & AI <span class="sub-tech">MediaPipe, PyTorch</span></div>
+                    </div>
+                    <div class="branch">
+                        <div class="node branch-node">Languages <span class="sub-tech">Python, JS</span></div>
+                    </div>
+                    <div class="branch">
+                        <div class="node branch-node">DevOps & Env <span class="sub-tech">Docker, Git, Linux</span></div>
                     </div>
                 </div>
-                <div id="skill-description" class="info-box">Kliknij dowolny węzeł, aby poznać parametry.</div>
             </div>
-        </section>
+        </div>
 
-        <!-- SEKCJA CONTACT (TESSERACT DATA) -->
-        <section id="contact-section" class="hud-section hidden">
-            <div class="glass-panel text-center">
-                <h2>TESSERACT // SOCIAL TERMINAL</h2>
-                <p>Obracaj obiektem 3D na ekranie, aby połączyć się przez wybraną sieć:</p>
-                <div class="social-links-grid">
-                    <a href="https://github.com" target="_blank" class="social-btn">GITHUB</a>
-                    <a href="https://instagram.com" target="_blank" class="social-btn">INSTAGRAM</a>
-                    <a href="https://m.me" target="_blank" class="social-btn">MESSENGER</a>
-                    <a href="#" class="social-btn" id="discord-btn">DISCORD (COPY NICK)</a>
+        <!-- Tesseract View -->
+        <div id="view-tesseract" class="full-view">
+            <div class="view-content glass">
+                <button class="close-btn">&times;</button>
+                <h2>TESSERACT</h2>
+                <div class="social-grid">
+                    <button class="social-btn" onclick="window.open('https://github.com', '_blank')">GITHUB</button>
+                    <button class="social-btn" onclick="window.open('https://instagram.com', '_blank')">INSTAGRAM</button>
+                    <button class="social-btn" onclick="window.open('https://messenger.com', '_blank')">MESSENGER</button>
+                    <button class="social-btn" id="discord-btn">DISCORD</button>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- SEKCJA LAB (RZEŹBIARZ 3D) -->
-        <section id="lab-section" class="hud-section hidden">
-            <div class="glass-panel float-info">
-                <h2>LABORATORIUM // 3D RZEŹBIARZ</h2>
-                <p>Użyj kursora myszy, aby odkształcać fioletową, płynną materię w przestrzeni!</p>
+        <!-- Lab View -->
+        <div id="view-lab" class="full-view">
+            <div class="view-content glass">
+                <button class="close-btn">&times;</button>
+                <h2>LABORATORY</h2>
+                <p>Interact with the geometry in the 3D space.</p>
             </div>
-        </section>
+        </div>
+    </div>
 
-    </main>
-
-    <script src="app.js"></script>
+    <script src="app.js?v=2.0"></script>
 </body>
 </html>
