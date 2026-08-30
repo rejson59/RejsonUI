@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMBER // Holographic Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- ============ GŁÓWNY INTERFEJS HOLOGRAMOWY ============ -->
+    <div id="hologram" class="hologram">
+
+        <!-- Nakładki CRT -->
+        <div class="scanlines"></div>
+        <div class="glow-vignette"></div>
+
+        <!-- Nagłówek -->
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark">◈</div>
+                <div class="brand-name">AMBER</div>
+                <div class="brand-sub">HOLOGRAPHIC ASSISTANT <span class="ver">v1.0</span></div>
+            </div>
+            <div class="sys-stats" id="sys-stats">
+                <div class="stat"><span class="stat-label">CPU</span><span class="stat-val" id="cpu">--%</span></div>
+                <div class="stat"><span class="stat-label">RAM</span><span class="stat-val" id="ram">--%</span></div>
+                <div class="stat"><span class="stat-label">BRAIN</span><span class="stat-val brain" id="brain-status">…</span></div>
+                <div class="stat"><span class="stat-label">VOICE</span><span class="stat-val" id="voice-status">…</span></div>
+            </div>
+            <div class="clock">
+                <div class="clock-time" id="clock-time">00:00:00</div>
+                <div class="clock-date" id="clock-date">—</div>
+            </div>
+        </header>
+
+        <!-- Główna siatka -->
+        <main class="grid">
+
+            <!-- Lewa kolumna: pamięć -->
+            <section class="panel panel-left">
+                <div class="panel-title">◈ PAMIĘĆ <span class="panel-tag">LONG-TERM</span></div>
+                <div class="memory-block">
+                    <div class="mem-heading">PROFIL UŻYTKOWNIKA</div>
+                    <ul id="profile-list" class="profile-list">
+                        <li class="placeholder">(pusta)</li>
+                    </ul>
+                </div>
+                <div class="memory-block">
+                    <div class="mem-heading">WSPOMNIENIA</div>
+                    <ul id="memory-list" class="memory-list">
+                        <li class="placeholder">(brak)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Środek: ekran + konsola -->
+            <section class="panel panel-center">
+                <div class="screen-wrap">
+                    <div class="screen-header">
+                        <span class="dot red"></span><span class="dot amber"></span><span class="dot green"></span>
+                        <span class="screen-title">LIVE SCREEN</span>
+                        <span class="screen-fps" id="screen-fps">— fps</span>
+                    </div>
+                    <div class="screen-view" id="screen-view">
+                        <img id="screen-img" alt="live screen">
+                        <div class="screen-hud" id="screen-hud">
+                            <span class="hud-label">AMBER.VISION</span>
+                            <span class="hud-cross">＋</span>
+                        </div>
+                        <div class="screen-nofeed" id="screen-nofeed">BRAK SYGNAŁU WIZJI</div>
+                    </div>
+                </div>
+
+                <div class="console">
+                    <div class="console-log" id="chat-log"></div>
+                    <form class="console-input" id="chat-form">
+                        <span class="prompt">❯</span>
+                        <input type="text" id="chat-input" placeholder="Napisz polecenie dla Amber…" autocomplete="off">
+                        <label class="toggle" title="Dołącz podgląd ekranu">
+                            <input type="checkbox" id="toggle-screen">
+                            <span class="toggle-pill">EK</span>
+                        </label>
+                        <button type="submit" class="send-btn" id="send-btn">⏎</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Prawa kolumna: dziennik akcji -->
+            <section class="panel panel-right">
+                <div class="panel-title">◈ AKCJE <span class="panel-tag">LIVE LOG</span></div>
+                <ul id="action-log" class="action-log">
+                    <li class="placeholder">(dziennik pusty)</li>
+                </ul>
+            </section>
+
+        </main>
+
+        <!-- Pasek stanu -->
+        <footer class="statusbar">
+            <div class="status-left">
+                <span id="status-dot" class="status-dot idle"></span>
+                <span id="status-text">GOTOWA</span>
+            </div>
+            <div class="status-right">
+                <span id="status-msg">Amber czeka na polecenie…</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============ MINI POPUP (podczas pracy) ============ -->
+    <div id="mini" class="mini hidden">
+        <div class="mini-glow"></div>
+        <div class="mini-head">
+            <div class="mini-orb"><span class="orb-ring"></span></div>
+            <div class="mini-title">AMBER</div>
+            <div class="mini-actions">
+                <button class="mini-btn" id="mini-expand" title="Rozwiń">⤢</button>
+            </div>
+        </div>
+        <div class="mini-body">
+            <div class="mini-thumb" id="mini-thumb">
+                <img id="mini-img" alt="screen">
+            </div>
+            <div class="mini-status" id="mini-status">Pracuję…</div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
