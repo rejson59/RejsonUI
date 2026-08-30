@@ -1,0 +1,30 @@
+# Amber — zależności (Python 3.10+)
+# Instalacja:  pip install -r requirements.txt
+
+requests>=2.31
+fastapi>=0.110
+uvicorn[standard]>=0.29
+websockets>=12.0
+
+# Ekran / sterowanie
+mss>=9.0
+Pillow>=10.0
+PyAutoGUI>=0.9.54
+
+# Głos (realistyczne, darmowe głosy neuronowe)
+edge-tts>=6.1
+pygame>=2.5
+
+# Informacje o systemie
+psutil>=5.9
+
+# --- OPCJONALNE (odkomentuj jeśli chcesz używać) ---
+# Natywne okno aplikacji zamiast przeglądarki:
+# pywebview>=5.0
+# Rozpoznawanie mowy (dyktowanie komend głosem):
+# SpeechRecognition>=3.10
+# pyaudio
+# Okna systemowe (zarządzanie programami):
+# pygetwindow>=0.0.9
+# Budowanie .exe:
+# pyinstaller>=6.0

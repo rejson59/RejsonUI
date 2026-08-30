@@ -1,0 +1,41 @@
+{
+  "assistant": {
+    "name": "Amber",
+    "language": "pl",
+    "personality": "Amber to ciepła, energiczna i konkretna asystentka AI. Mówi po polsku, jest pomocna, bystra i dyskretna. Zna swojego użytkownika, pamięta ważne informacje o nim i dostosowuje się do jego stylu. Kiedy wykonuje zadania na komputerze, relacjonuje je krótko i pewnie."
+  },
+  "brain": {
+    "backend": "ollama",
+    "model": "qwen2.5:7b",
+    "base_url": "http://localhost:11434",
+    "api_key": "",
+    "temperature": 0.7,
+    "max_tokens": 2048,
+    "vision": true
+  },
+  "voice": {
+    "enabled": true,
+    "engine": "edge",
+    "edge_voice": "pl-PL-ZofiaNeural",
+    "rate": "+0%",
+    "volume": "+0%",
+    "stt_enabled": false
+  },
+  "screen": {
+    "stream_fps": 6,
+    "quality": 65,
+    "scale": 1.0
+  },
+  "control": {
+    "allow_shell": true,
+    "allow_self_modify": true,
+    "auto_screenshot_on_think": true,
+    "max_tool_rounds": 8
+  },
+  "ui": {
+    "host": "0.0.0.0",
+    "port": 8421,
+    "window_mode": "browser",
+    "start_minimized": true
+  }
+}
